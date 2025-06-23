@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heritage Property Registration</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a6b8a;
+            --secondary-color: #8a6b4a;
+            --accent-color: #6b8a4a;
+            --light-bg: #f8f5f2;
+            --dark-text: #333;
+            --light-text: #666;
+            --border-color: #ddd;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--dark-text);
+            background-color: var(--light-bg);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        
+        h1, h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--primary-color);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--secondary-color);
+        }
+        
+        h2 {
+            font-size: 1.2rem;
+            margin: 25px 0 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--secondary-color);
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-text);
+        }
+        
+        .sub-label {
+            font-size: 0.9rem;
+            color: var(--light-text);
+            margin-bottom: 5px;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            transition: border 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(74, 107, 138, 0.2);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .radio-group, .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .radio-option, .checkbox-option {
+            display: flex;
+            align-items: center;
+        }
+        
+        .radio-option input, .checkbox-option input {
+            margin-right: 8px;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            transition: background 0.3s, transform 0.2s;
+        }
+        
+        button:hover {
+            background-color: #3a5a78;
+            transform: translateY(-1px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.secondary {
+            background-color: var(--secondary-color);
+        }
+        
+        button.secondary:hover {
+            background-color: #795a3a;
+        }
+        
+        #map {
+            width: 100%;
+            height: 400px;
+            display: none;
+            margin: 15px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+        
+        .coordinates-box {
+            background: #f9f9f9;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: monospace;
+        }
+        
+        .success {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        
+        .error {
+            color: var(--error-color);
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .feature-section {
+            margin-bottom: 20px;
+        }
+        
+        .feature-section label {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .form-section {
+                padding: 15px;
+            }
+            
+            .radio-group, .checkbox-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        #serial_number{
+            font-family:monospace;
+            color: rgba(0, 0, 0, 0.582);
+            font-size: 1rem;
+        }
+        .particular_image{
+           font-size: 0.8rem;
+        }
+
+        /* Custom file input styling */
+        .file-input-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        .file-input-label {
+            display: block;
+            padding: 10px 15px;
+            background-color: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--dark-text);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .file-input-label:hover {
+            background-color: #e9e5e1;
+        }
+        
+        .file-input-label i {
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+        
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 0.1px;
+            height: 0.1px;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .file-name {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: var(--light-text);
+        }
+        
+        .image-preview {
+            margin-top: 10px;
+            max-width: 150px;
+            max-height: 150px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .red_imp{
+            color: rgba(255, 0, 0, 0.756);
+        }
+        
+        /* Loading indicator */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+        
+        .progress-text {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Processing Images...</div>
+        <div class="progress-text" id="progressText">0/0 images processed</div>
+    </div>
+
+    <div class="container">
+        <h1>Heritage Survey</h1>
+        
+        <form id="heritageForm">
+
+            <div class="form-section">
+                <h2 id="serial_number">SERIAL NO: -</h2><br>
+                <label for="village_city">Choose a Village/City:</label>
+                <select id="village_city" name="village_city">
+                    <option value="" disabled selected>Select</option>
+                    <option value="Arimalam">Arimalam</option>
+                    <option value="Athangudi">Athangudi</option>
+                    <option value="Chokalingampudur">Chokalingampudur</option>
+                    <option value="Kadiapatti">Kadiapatti</option>
+                    <option value="Kanadukathan">Kanadukathan</option>
+                    <option value="Kandanur">Kandanur</option>
+                    <option value="Karaikkudi">Karaikkudi</option>
+                    <option value="Kothamangalam">Kothamangalam</option>
+                    <option value="Kottaiyur">Kottaiyur</option>
+                    <option value="Pallathur">Pallathur</option>
+                    <option value="Ponnamaravathi">Ponnamaravathi</option>
+                    <option value="Ramachandrapuram">Ramachandrapuram</option>
+                    <option value="Rayavaram">Rayavaram</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+       
+            <div class="form-section">
+                <h2>1. Property Information</h2>
+                
+                <div class="form-group">
+                    <label for="historic_name">Historic Name <span class="red_imp">*</span></label>
+                    <input type="text" id="historic_name" name="historic_name" placeholder="Enter the historic name of the property">
+                </div>
+                
+                <div class="form-group">
+                    <label for="other_name">Other Name (if any)</label>
+                    <input type="text" id="other_name" name="other_name" placeholder="Enter any other names the property is known by">
+                </div>
+                
+                <div class="form-group" id="other_village" style="display: none;">
+                    <label for="other_village_data">Village/City<span class="red_imp">*</span></label>
+                    <input type="text" name="other_village_data" id="other_village_data" placeholder="Enter the village or city where the property is located">
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h2>2. Location Details</h2>
+                
+                <div class="form-group">
+                    <label for="street_name">Street Name <span class="red_imp">*</span></label>
+                    <input type="text" id="street_name" name="street_name" placeholder="Enter the street name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="house_no">House Number (Past/Present) <span class="red_imp">*</span></label>
+                    <input type="text" id="house_no" name="house_no" placeholder="Enter past or present house number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="name_adjoining_building">Adjoining Buildings <span class="red_imp">*</span></label>
+                    <input type="text" name="name_adjoining_building" id="name_adjoining_building" placeholder="Enter names of adjoining buildings">
+                </div>
+                
+                <div class="form-group">
+                    <label>Geographic Coordinates <span class="red_imp">*</span></label>
+                    <button type="button" id="select_map" class="secondary">Select Location on Map</button>
+                    <div id="map"></div>
+                    
+                    <div class="coordinates-box">
+                        <p id="locationInfo">No location selected yet.</p>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Administrative Area <span class="red_imp">*</span></label>
+                    <div class="radio-group" id="situated_group">
+                        <div class="radio-option">
+                            <input type="radio" id="corporation" name="situated" value="Corporation">
+                            <label for="corporation">Corporation</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="municipality" name="situated" value="Municipality">
+                            <label for="municipality">Municipality</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="panchayat" name="situated" value="Panchayat">
+                            <label for="panchayat">Panchayat</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="approach">Approach to the Building (Optional)</label>
+                    <textarea name="approach" id="approach" placeholder="Describe how to approach the building (directions, landmarks, etc.)"></textarea>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h2>3. Ownership & Usage</h2>
+                
+                <div class="form-group">
+                    <label for="owner_data">Owner's Name and Address <span class="red_imp">*</span></label>
+                    <input type="text" name="owner_data" id="owner_data" placeholder="Enter owner's name and full address">
+                </div>
+                
+                <div class="form-group">
+                    <label>Occupancy Status <span class="red_imp">*</span></label>
+                    <div class="radio-group" id="occupancy_group">
+                        <div class="radio-option">
+                            <input type="radio" id="owner" name="occupancy" value="Owner">
+                            <label for="owner">Owner</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="tenant" name="occupancy" value="Tenant">
+                            <label for="tenant">Tenant</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="government" name="occupancy" value="Government">
+                            <label for="government">Government</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="unoccupied" name="occupancy" value="Unoccupied">
+                            <label for="unoccupied">Unoccupied</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="public" name="occupancy" value="Public">
+                            <label for="public">Public</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="private" name="occupancy" value="Private">
+                            <label for="private">Private</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="trust" name="occupancy" value="Trust">
+                            <label for="trust">Trust</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="past_usage">Past Usage <span class="red_imp">*</span></label>
+                    <input type="text" name="past_usage" id="past_usage" placeholder="Enter how the property was used in the past">
+                </div>
+                
+                <div class="form-group">
+                    <label for="present_usage">Present Usage <span class="red_imp">*</span></label>
+                    <input type="text" name="present_usage" id="present_usage" placeholder="Enter how the property is currently used">
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h2>4. Protection Status</h2>
+                
+                <div class="form-group">
+                    <label>Protected Structure Status <span class="red_imp">*</span></label>
+                    <div class="radio-group" id="protected_structure_group">
+                        <div class="radio-option">
+                            <input type="radio" id="asi" name="protected_structure" value="ASI">
+                            <label for="asi">ASI (Archaeological Survey of India)</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="dept_archaeology" name="protected_structure" value="Department of Archaeology">
+                            <label for="dept_archaeology">Department of Archaeology</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="other_protected" name="protected_structure" value="Other">
+                            <label for="other_protected">Other</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Condition of Preservation <span class="red_imp">*</span></label>
+                    <div class="radio-group" id="condition_preservation_group">
+                        <div class="radio-option">
+                            <input type="radio" id="excellent" name="condition_preservation" value="Excellent">
+                            <label for="excellent">Excellent</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="average" name="condition_preservation" value="Average">
+                            <label for="average">Average</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="derelict" name="condition_preservation" value="Derelict">
+                            <label for="derelict">Derelict</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="history_significance">Historical Significance <span class="red_imp">*</span></label>
+                    <textarea name="history_significance" id="history_significance" placeholder="Describe the historical significance of the property"></textarea>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h2>5. Age & Construction</h2>
+                
+                <div class="form-group">
+                    <label for="age_building">Age of Building (in years) <span class="red_imp">*</span></label>
+                    <input type="number" name="age_building" id="age_building" placeholder="Enter estimated age">
+                </div>
+                
+                <div class="form-group">
+                    <label for="age_source">Source for Age <span class="red_imp">*</span></label>
+                    <input type="text" name="age_source" id="age_source" placeholder="Enter source of age information">
+                </div>
+                
+                <div class="form-group">
+                    <label for="estimated_year">Estimated Year of Construction <span class="red_imp">*</span></label>
+                    <input type="number" name="estimated_year" id="estimated_year" placeholder="Enter estimated construction year">
+                </div>
+                
+                <div class="form-group">
+                    <label for="estimated_year_source">Source for Construction Year <span class="red_imp">*</span></label>
+                    <input type="text" name="estimated_year_source" id="estimated_year_source" placeholder="Enter source of construction year information">
+                </div>
+                
+                <div class="form-group">
+                    <label for="no_floor">Number of Floors <span class="red_imp">*</span></label>
+                    <input type="number" name="no_floor" id="no_floor" placeholder="Enter number of floors">
+                </div>
+                
+                <div class="form-group">
+                    <label>Architectural Style <span class="red_imp">*</span></label>
+                    <div class="radio-group" id="style_data_group">
+                        <div class="radio-option">
+                            <input type="radio" id="traditional" name="style_data" value="Traditional">
+                            <label for="traditional">Traditional</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="colonial" name="style_data" value="Colonial">
+                            <label for="colonial">Colonial</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="vernacular" name="style_data" value="Vernacular">
+                            <label for="vernacular">Vernacular</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="combination" name="style_data" value="Combination">
+                            <label for="combination">Combination</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="other_style" name="style_data" value="Other">
+                            <label for="other_style">Other</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="period_consturction">Period of Construction (Optional)</label>
+                    <input type="text" name="period_consturction" id="period_consturction" placeholder="Enter period identified from construction style">
+                </div>
+                
+              <div class="form-group">
+                <label>Building Typology (Optional)</label>
+                <div class="radio-group" id="typology_building_group">
+                    <div class="radio-option">
+                        <input type="radio" id="godown" name="typology_building" value="Godown">
+                        <label for="godown">Godown</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="industrial" name="typology_building" value="Industrial">
+                        <label for="industrial">Industrial</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="port" name="typology_building" value="Port">
+                        <label for="port">Port</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="residential" name="typology_building" value="Residential">
+                        <label for="residential">Residential</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="commercial" name="typology_building" value="Commercial">
+                        <label for="commercial">Commercial</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="res_com" name="typology_building" value="Residential/Commercial">
+                        <label for="res_com">Residential/Commercial</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="religious" name="typology_building" value="Religious">
+                        <label for="religious">Religious</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="public_bldg" name="typology_building" value="Public Building">
+                        <label for="public_bldg">Public Building</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="others_typology" name="typology_building" value="Others">
+                        <label for="others_typology">Others</label>
+                    </div>
+                </div>
+            </div>
+            </div>
+            
+            <div class="form-section">
+                <h2>6. Architectural Features </h2>
+                
+                <div class="feature-section">
+                    <label for="roof_data">Roof</label>
+                    <textarea name="roof_data" id="roof_data" placeholder="Describe roof features and construction techniques"></textarea>
+                    <div class="file-input-container">
+                        <label class="file-input-label" for="roof_image">
+                             Upload Roof Image
+                        </label>
+                        <input type="file" class="file-input" accept="image/*" id="roof_image">
+                        <span class="file-name" id="roof_image_name">No file selected</span>
+                        <div class="preview-container">
+                            <img id="roof_image_preview" class="image-preview" alt="Roof preview">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-section">
+                    <label for="ceiling_data">Ceiling</label>
+                    <textarea name="ceiling_data" id="ceiling_data" placeholder="Describe ceiling features"></textarea>
+                    <div class="file-input-container">
+                        <label class="file-input-label" for="ceiling_image">
+                             Upload Ceiling Image
+                        </label>
+                        <input type="file" class="file-input" accept="image/*" id="ceiling_image">
+                        <span class="file-name" id="ceiling_image_name">No file selected</span>
+                        <div class="preview-container">
+                            <img id="ceiling_image_preview" class="image-preview" alt="Ceiling preview">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-section">
+                    <label for="wall_data">Walls</label>
+                    <textarea name="wall_data" id="wall_data" placeholder="Describe wall construction and materials"></textarea>
+                    <div class="file-input-container">
+                        <label class="file-input-label" for="wall_image">
+                             Upload Walls Image
+                        </label>
+                        <input type="file" class="file-input" accept="image/*" id="wall_image">
+                        <span class="file-name" id="wall_image_name">No file selected</span>
+                        <div class="preview-container">
+                            <img id="wall_image_preview" class="image-preview" alt="Walls preview">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-section">
+                    <label for="jallis_data">Jallis</label>
+                    <textarea name="jallis_data" id="jallis_data" placeholder="Describe any jalli work"></textarea>
+                    <div class="file-input-container">
+                        <label class="file-input-label" for="jallis_image">
+                             Upload Jallis Image
+                        </label>
+                        <input type="file" class="file-input" accept="image/*" id="jallis_image">
+                        <span class="file-name" id="jallis_image_name">No file selected</span>
+                        <div class="preview-container">
+                            <img id="jallis_image_preview" class="image-preview" alt="Jallis preview">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-section">
+                    <label for="openings_data">Openings</label>
+                    <textarea name="openings_data" id="openings_data" placeholder="Describe doors, windows, and other openings"></textarea>
+                    <div class="file-input-container">
+                        <label class="file-input-label" for="openings_image">
+                             Upload Openings Image
+                        </label>
+                        <input type="file" class="file-input" accept="image/*" id="openings_image">
+                        <span class="file-name" id="openings_image_name">No file selected</span>
+                        <div class="preview-container">
+                            <img id="openings_image_preview" class="image-preview" alt="Openings preview">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-section">
+                    <label for="floor_data">Floor</label>
+                    <textarea name="floor_data" id="floor_data" placeholder="Describe flooring materials and features"></textarea>
+                    <div class="file-input-container">
+                        <label class="file-input-label" for="floor_image">
+                             Upload Floor Image
+                        </label>
+                        <input type="file" class="file-input" accept="image/*" id="floor_image">
+                        <span class="file-name" id="floor_image_name">No file selected</span>
+                        <div class="preview-container">
+                            <img id="floor_image_preview" class="image-preview" alt="Floor preview">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-section">
+                    <label for="building_facades_data">Building Facades</label>
+                    <textarea name="building_facades_data" id="building_facades_data" placeholder="Describe facade features and decorations"></textarea>
+                    <div class="file-input-container">
+                        <label class="file-input-label" for="building_facades_image">
+                             Upload Facades Image
+                        </label>
+                        <input type="file" class="file-input" accept="image/*" id="building_facades_image">
+                        <span class="file-name" id="building_facades_image_name">No file selected</span>
+                        <div class="preview-container">
+                            <img id="building_facades_image_preview" class="image-preview" alt="Facades preview">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-section">
+                    <label for="others_data">Other Features</label>
+                    <textarea name="others_data" id="others_data" placeholder="Describe any other notable features"></textarea>
+                    <div class="file-input-container">
+                        <label class="file-input-label" for="others_image">
+                             Upload Other Features Image
+                        </label>
+                        <input type="file" class="file-input" accept="image/*" id="others_image">
+                        <span class="file-name" id="others_image_name">No file selected</span>
+                        <div class="preview-container">
+                            <img id="others_image_preview" class="image-preview" alt="Other features preview">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-section">
+                    <label for="setting_data">Setting</label>
+                    <textarea name="setting_data" id="setting_data" placeholder="Describe the property's setting and surroundings"></textarea>
+                    <div class="file-input-container">
+                        <label class="file-input-label" for="setting_image">
+                             Upload Setting Image
+                        </label>
+                        <input type="file" class="file-input" accept="image/*" id="setting_image">
+                        <span class="file-name" id="setting_image_name">No file selected</span>
+                        <div class="preview-container">
+                            <img id="setting_image_preview" class="image-preview" alt="Setting preview">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="decorative_feature">Special/Decorative Features (Optional)</label>
+                    <input type="text" name="decorative_feature" id="decorative_feature" placeholder="Enter any special decorative features">
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h2>7. Building Images</h2>
+                <div class="feature-section">
+                    <div class="file-input-container">
+                        <label class="file-input-label" for="front_image">
+                           Upload Front Image
+                        </label>
+                        <input type="file" class="file-input" accept="image/*" id="front_image">
+                        <span class="file-name" id="front_image_name">No file selected</span>
+                        <div class="preview-container">
+                            <img id="front_image_preview" class="image-preview" alt="Front preview">
+                        </div>
+                    </div>
+                    
+                    <div class="file-input-container">
+                        <label class="file-input-label" for="back_image">
+                            Upload Back Image
+                        </label>
+                        <input type="file" class="file-input" accept="image/*" id="back_image">
+                        <span class="file-name" id="back_image_name">No file selected</span>
+                        <div class="preview-container">
+                            <img id="back_image_preview" class="image-preview" alt="Back preview">
+                        </div>
+                    </div>
+                    
+                    <div class="file-input-container">
+                        <label class="file-input-label" for="left_image">
+                             Upload Left Image
+                        </label>
+                        <input type="file" class="file-input" accept="image/*" id="left_image">
+                        <span class="file-name" id="left_image_name">No file selected</span>
+                        <div class="preview-container">
+                            <img id="left_image_preview" class="image-preview" alt="Left preview">
+                        </div>
+                    </div>
+                    
+                    <div class="file-input-container">
+                        <label class="file-input-label" for="right_image">
+                             Upload Right Image
+                        </label>
+                        <input type="file" class="file-input" accept="image/*" id="right_image">
+                        <span class="file-name" id="right_image_name">No file selected</span>
+                        <div class="preview-container">
+                            <img id="right_image_preview" class="image-preview" alt="Right preview">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" id="submitBtn" onclick="submitForm()">Submit Registration</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Global variables
+        const API_URL = 'http://localhost:3000/api/submit-form';
+        let formData = new FormData();
+        
+        let map, marker, tempLatLng;
+        let selectedLatitude = null;
+        let selectedLongitude = null;
+        let compactFormat = null;
+        
+        // DOM elements
+        const selectMapBtn = document.getElementById('select_map');
+        const locationInfo = document.getElementById('locationInfo');
+        const heritageForm = document.getElementById('heritageForm');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const progressText = document.getElementById('progressText');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // Form event listeners
+        heritageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+        
+        // Map functionality
+        selectMapBtn.addEventListener('click', openMap);
+        
+        // Image input IDs for processing
+        const imageInputIds = [
+            'roof_image', 'ceiling_image', 'wall_image', 'jallis_image', 
+            'openings_image', 'floor_image', 'building_facades_image', 
+            'others_image', 'setting_image', 'front_image', 'back_image', 
+            'left_image', 'right_image'
+        ];
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up image previews
+            setupImagePreviews();
+            
+            // Village selection logic
+            document.getElementById('village_city').addEventListener('change', function() {
+                document.getElementById('serial_number').innerHTML = "SERIAL NO: ";
+                const selectedVillage = this.value;
+                if(selectedVillage == "Other") {
+                    document.getElementById('other_village').style.display = 'block';
+                } else {
+                    document.getElementById('other_village').style.display = 'none';
+                    generateSerial(selectedVillage);
+                }
+            });
+            
+            // Other village input
+            document.getElementById('other_village_data').addEventListener('blur', function() {
+                if(this.value == "") {
+                    document.getElementById('serial_number').innerHTML = "SERIAL NO: ";
+                } else {
+                    generateSerial(this.value);
+                }
+            });
+        });
+        
+        // Map functions
+        function openMap() {
+            document.getElementById('map').style.display = 'block';
+            
+            if (map) {
+                map.invalidateSize();
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude: lat, longitude: lng } = position.coords;
+                    initMap(lat, lng);
+                },
+                (error) => {
+                    alert("Allow GPS access or manually select a location.");
+                    initMap(27.7172, 85.3240);
+                }
+            );
+        }
+        
+        function initMap(lat, lng) {
+            map = L.map('map').setView([lat, lng], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+            
+            marker = L.marker([lat, lng]).addTo(map);
+            
+            map.on('click', (e) => {
+                tempLatLng = e.latlng;
+                marker.setLatLng(tempLatLng);
+                
+                const popupContent = `
+                    <div style="padding: 10px;">
+                        <b>Confirm Location?</b><br>
+                        Lat: ${tempLatLng.lat.toFixed(6)}, Lng: ${tempLatLng.lng.toFixed(6)}<br>
+                        <div style="margin-top: 10px; display: flex; gap: 5px;">
+                            <button style="padding: 5px 10px; background: #4a6b8a; color: white; border: none; border-radius: 3px; cursor: pointer;" onclick="window.confirmLocation()">OK</button>
+                            <button style="padding: 5px 10px; background: #ccc; color: #333; border: none; border-radius: 3px; cursor: pointer;" onclick="window.cancelLocation()">Cancel</button>
+                        </div>
+                    </div>
+                `;
+                
+                marker.bindPopup(popupContent).openPopup();
+            });
+        }
+        
+        window.confirmLocation = function() {
+            const { lat, lng } = tempLatLng;
+            selectedLatitude = lat;
+            selectedLongitude = lng;
+            
+            locationInfo.innerHTML = `
+                <span class="success">✓ Location Selected</span><br>
+                Latitude: <strong>${lat.toFixed(6)}</strong><br>
+                Longitude: <strong>${lng.toFixed(6)}</strong>
+            `;
+            map.closePopup();
+            document.getElementById('map').style.display = 'none';
+        };
+        
+        window.cancelLocation = function() {
+            map.closePopup();
+        };
+        
+        // Serial number generation
+        function generateSerial(place) {
+            function pad(num) {
+                return num.toString().padStart(2, '0');
+            }
+            
+            const two_place = place.slice(0, 4).toUpperCase();
+            const now = new Date();
+            
+            const hours = pad(now.getHours());
+            const minutes = pad(now.getMinutes());
+            const seconds = pad(now.getSeconds());
+            const day = pad(now.getDate());
+            const month = pad(now.getMonth() + 1);
+            const year = now.getFullYear();
+            
+            compactFormat = `${two_place}${hours}${minutes}${seconds}${day}${month}${year}`;
+            document.getElementById('serial_number').innerHTML = "SERIAL NO: " + compactFormat;
+        }
+        
+        // Image preview setup
+        function setupImagePreviews() {
+            document.querySelectorAll('.file-input').forEach(input => {
+                const previewId = input.id + '_preview';
+                const fileNameId = input.id + '_name';
+                const previewElement = document.getElementById(previewId);
+                const fileNameElement = document.getElementById(fileNameId);
+                
+                input.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        // Update file name
+                        fileNameElement.textContent = file.name;
+                        
+                        // Create preview
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            previewElement.src = event.target.result;
+                            previewElement.style.display = 'block';
+                        }
+                        reader.readAsDataURL(file);
+                    } else {
+                        fileNameElement.textContent = 'No file selected';
+                        previewElement.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        // Image compression function
+        async function compressImage(imageFile, { maxSizeMB = 1, quality = 0.8 }) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(imageFile);
+                
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Calculate new dimensions while maintaining aspect ratio
+                        let width = img.width;
+                        let height = img.height;
+                        const MAX_DIMENSION = 2048; // Max width or height
+                        
+                        if (width > height && width > MAX_DIMENSION) {
+                            height *= MAX_DIMENSION / width;
+                            width = MAX_DIMENSION;
+                        } else if (height > MAX_DIMENSION) {
+                            width *= MAX_DIMENSION / height;
+                            height = MAX_DIMENSION;
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Convert back to file
+                        canvas.toBlob((blob) => {
+                            const compressedFile = new File([blob], imageFile.name, {
+                                type: 'image/jpeg', // Default to jpeg for better compression
+                                lastModified: Date.now()
+                            });
+                            resolve(compressedFile);
+                        }, 'image/jpeg', quality);
+                    };
+                };
+            });
+        }
+        
+        // Process all images in the form
+        async function processAllImages() {
+            const imageInputs = imageInputIds.map(id => document.getElementById(id));
+            const imagesToProcess = imageInputs.filter(input => input.files?.length > 0);
+            
+            if (imagesToProcess.length === 0) return true;
+            
+            // Show loading overlay
+            loadingOverlay.style.display = 'flex';
+            submitBtn.disabled = true;
+            
+            try {
+                for (let i = 0; i < imagesToProcess.length; i++) {
+                    const input = imagesToProcess[i];
+                    const file = input.files[0];
+                    
+                    // Update progress
+                    progressText.textContent = `${i + 1}/${imagesToProcess.length} images processed`;
+                    
+                    // Check if file is an image
+                    if (!file.type.startsWith('image/')) {
+                        alert(`File in ${input.id} is not an image`);
+                        scroll_show_error(input.id);
+                        return false;
+                    }
+                    
+                    // If image is larger than 1MB, compress it
+                    if (file.size > 1024 * 1024) {
+                        const compressedFile = await compressImage(file, { 
+                            maxSizeMB: 1,
+                            quality: 0.7 
+                        });
+                        
+                        // Replace the file in the input
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(compressedFile);
+                        input.files = dataTransfer.files;
+                        
+                        // Update the file name display
+                        const fileNameElement = document.getElementById(`${input.id}_name`);
+                        if (fileNameElement) {
+                            fileNameElement.textContent = compressedFile.name + ' (compressed)';
+                        }
+                    }
+                }
+                return true;
+            } catch (error) {
+                console.error('Error processing images:', error);
+                alert('Error processing images. Please try again.');
+                return false;
+            } finally {
+                loadingOverlay.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        }
+        
+        // Form validation
+        async function validateForm() {
+            // First process all images
+            const imagesProcessed = await processAllImages();
+            if (!imagesProcessed) return false;
+            
+            // Then validate all form fields
+            const village_name = document.getElementById('village_city').value;
+            const historic_name = document.getElementById('historic_name').value;
+            const street_name = document.getElementById('street_name').value;
+            const house_no = document.getElementById('house_no').value;
+            const name_adjoining_building = document.getElementById('name_adjoining_building').value;
+            const situated = document.querySelector('input[name="situated"]:checked')?.value;
+            const owner_data = document.getElementById('owner_data').value;
+            const occupancy = document.querySelector('input[name="occupancy"]:checked')?.value;
+            const past_usage = document.getElementById('past_usage').value;
+            const present_usage = document.getElementById('present_usage').value;
+            const protected_structure = document.querySelector('input[name="protected_structure"]:checked')?.value;
+            const condition_preservation = document.querySelector('input[name="condition_preservation"]:checked')?.value;
+            const history_significance = document.getElementById('history_significance').value;
+            const age_building = document.getElementById('age_building').value;
+            const age_source = document.getElementById('age_source').value;
+            const estimated_year = document.getElementById('estimated_year').value;
+            const estimated_year_source = document.getElementById('estimated_year_source').value;
+            const no_floor = document.getElementById('no_floor').value;
+            const style_data = document.querySelector('input[name="style_data"]:checked')?.value;
+            
+            // Validation checks
+            if (village_name === "") {
+                scroll_show_error('village_city');
+                return false;
+            }
+            
+            if (village_name === "Other") {
+                const other_village_data = document.getElementById('other_village_data').value;
+                if (other_village_data === "") {
+                    scroll_show_error('other_village_data');
+                    return false;
+                }
+            }
+            
+            if (historic_name === "") {
+                scroll_show_error('historic_name');
+                return false;
+            }
+            
+            if (street_name === '') {
+                scroll_show_error('street_name');
+                return false;
+            }
+            
+            if (house_no === "") {
+                scroll_show_error('house_no');
+                return false;
+            }
+            
+            if (name_adjoining_building === "") {
+                scroll_show_error('name_adjoining_building');
+                return false;
+            }
+            
+            if (situated === null) {
+                scroll_show_error('situated_group');
+                return false;
+            }
+            
+            if (selectedLatitude === null || selectedLongitude === null) {
+                alert("Please select a location on the map");
+                document.getElementById('select_map').scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('select_map').style.backgroundColor = '#f8f5f2';
+                setTimeout(() => {
+                    document.getElementById('select_map').style.backgroundColor = '';
+                }, 1200);
+                return false;
+            }
+            
+            if (owner_data === "") {
+                scroll_show_error('owner_data');
+                return false;
+            }
+            
+            if (occupancy === null) {
+                scroll_show_error('occupancy_group');
+                return false;
+            }
+            
+            if (past_usage === "") {
+                scroll_show_error('past_usage');
+                return false;
+            }
+            
+            if (present_usage === "") {
+                scroll_show_error('present_usage');
+                return false;
+            }
+            
+            if (protected_structure === null) {
+                scroll_show_error('protected_structure_group');
+                return false;
+            }
+            
+            if (condition_preservation === null) {
+                scroll_show_error('condition_preservation_group');
+                return false;
+            }
+            
+            if (history_significance === "") {
+                scroll_show_error('history_significance');
+                return false;
+            }
+            
+            if (age_building === "") {
+                scroll_show_error('age_building');
+                return false;
+            }
+            
+            if (age_source === "") {
+                scroll_show_error('age_source');
+                return false;
+            }
+            
+            if (estimated_year === "" || estimated_year < 1000 || estimated_year > 2025) {
+                scroll_show_error('estimated_year');
+                return false;
+            }
+            
+            if (estimated_year_source === "") {
+                scroll_show_error('estimated_year_source');
+                return false;
+            }
+            
+            if (no_floor === "" || no_floor > 10) {
+                scroll_show_error('no_floor');
+                return false;
+            }
+            
+            if (style_data === null) {
+                scroll_show_error('style_data_group');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Form submission
+        async function submitForm() {
+            const isValid = await validateForm();
+            if (!isValid) return;
+
+            try {
+                const form = document.getElementById('heritageForm');
+                const formData = new FormData(form);
+                
+                // Add coordinates from map
+                formData.append('lat', selectedLatitude);
+                formData.append('lng', selectedLongitude);
+                
+                // Add all text fields
+                const textFields = [
+                    'serial_number',
+                    'village_city',
+                    'historic_name',
+                    'other_name',
+                    'other_village_data',
+                    'street_name',
+                    'house_no',
+                    'name_adjoining_building',
+                    'approach',
+                    'owner_data',
+                    'past_usage',
+                    'present_usage',
+                    'history_significance',
+                    'age_building',
+                    'age_source',
+                    'estimated_year',
+                    'estimated_year_source',
+                    'no_floor',
+                    'period_consturction',
+                    'roof_data',
+                    'ceiling_data',
+                    'wall_data',
+                    'jallis_data',
+                    'openings_data',
+                    'floor_data',
+                    'building_facades_data',
+                    'others_data',
+                    'setting_data',
+                    'decorative_feature'
+                ];
+
+                textFields.forEach(field => {
+                    const element = document.getElementById(field);
+                    if (element) {
+                        if (element.type === 'text' || element.type === 'number' || element.tagName === 'TEXTAREA') {
+                            formData.append(field, element.value);
+                        } else if (element.tagName === 'SELECT') {
+                            formData.append(field, element.value);
+                        }
+                    }
+                });
+
+                // Add radio button selections
+                const radioGroups = [
+                    'situated',
+                    'occupancy',
+                    'protected_structure',
+                    'condition_preservation',
+                    'style_data',
+                    'typology_building'
+                ];
+
+                radioGroups.forEach(group => {
+                    const selected = document.querySelector(`input[name="${group}"]:checked`);
+                    if (selected) {
+                        formData.append(group, selected.value);
+                    }
+                });
+
+                // Add images with their respective categories
+                const imageInputs = {
+                    'roof_image': document.getElementById('roof_image'),
+                    'ceiling_image': document.getElementById('ceiling_image'),
+                    'wall_image': document.getElementById('wall_image'),
+                    'jallis_image': document.getElementById('jallis_image'),
+                    'openings_image': document.getElementById('openings_image'),
+                    'floor_image': document.getElementById('floor_image'),
+                    'building_facades_image': document.getElementById('building_facades_image'),
+                    'others_image': document.getElementById('others_image'),
+                    'setting_image': document.getElementById('setting_image'),
+                    'decorative_feature_image': document.getElementById('decorative_feature_image')
+                };
+
+                Object.entries(imageInputs).forEach(([fieldName, input]) => {
+                    if (input && input.files.length > 0) {
+                        Array.from(input.files).forEach(file => {
+                            formData.append(fieldName, file);
+                        });
+                    }
+                });
+
+                // Show loading overlay
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                loadingOverlay.style.display = 'flex';
+                submitBtn.disabled = true;
+
+                // Send request to server
+                const response = await fetch('http://localhost:3000/api/submit-form', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('Form submitted successfully!');
+                    form.reset();
+                    location.reload();
+                } else {
+                    throw new Error(result.error || 'Failed to submit form');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error submitting form. Please try again.');
+            } finally {
+                // Ensure loading overlay is hidden
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                if (loadingOverlay) {
+                    loadingOverlay.style.display = 'none';
+                }
+                submitBtn.disabled = false;
+            }
+        }
+        
+        // Helper function to show errors
+        function scroll_show_error(element) {
+            var error_element = document.getElementById(element);
+            error_element.style.backgroundColor = '#f8f5f2';
+            const offset = -100;
+            const y = error_element.getBoundingClientRect().top + window.pageYOffset + offset;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+            setTimeout(() => {
+                error_element.style.backgroundColor = '';
+            }, 1200);
+        }
+    </script>
+</body>
+</html>

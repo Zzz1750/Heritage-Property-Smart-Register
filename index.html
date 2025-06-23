@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digitalising Chettinad</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8B5A2B; /* Chettinad earthy tone */
+            --secondary: #D4A76A; /* Gold accent */
+            --dark: #1A120B;
+            --light: #F5F5F5;
+            --text: #333333;
+            --overlay: rgba(26, 18, 11, 0.7);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--light);
+            background-color: var(--dark);
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .hero-image {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            opacity: 0.4;
+        }
+        
+        .overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, var(--overlay) 100%);
+            z-index: 0;
+        }
+        
+        .container {
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            z-index: 1;
+        }
+        
+        .logo {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo-icon {
+            color: var(--secondary);
+        }
+        
+        .content {
+            max-width: 800px;
+            margin-bottom: 3rem;
+        }
+        
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .highlight {
+            color: var(--secondary);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background-color: var(--primary);
+            opacity: 0.5;
+            z-index: -1;
+        }
+        
+        p.subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(139, 90, 43, 0.3);
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary);
+            color: var(--dark);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(139, 90, 43, 0.4);
+        }
+        
+        .btn i {
+            font-size: 1.2rem;
+        }
+        
+        .footer {
+            position: absolute;
+            bottom: 2rem;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        .pattern-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="none"/><path d="M20,20 L80,20 L80,80 L20,80 Z" stroke="%238B5A2B" stroke-width="0.5" fill="none"/></svg>');
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            h1 {
+                font-size: 3rem;
+            }
+            
+            p.subtitle {
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .content {
+                margin-bottom: 2rem;
+            }
+            
+            .btn {
+                padding: 0.9rem 2rem;
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+            
+            p.subtitle {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .btn {
+                padding: 0.8rem 1.8rem;
+            }
+            
+            .logo {
+                font-size: 1.2rem;
+                top: 1.5rem;
+                left: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .container {
+                padding: 1.5rem;
+            }
+        }
+        
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .content {
+            animation: fadeIn 1s ease-out forwards;
+        }
+        
+        .btn {
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+    </style>
+</head>
+<body>
+    <img class="hero-image" src="./images/back3.jpg" alt="Chettinad Architecture">
+    <div class="overlay"></div>
+    <div class="pattern-overlay"></div>
+    
+    <div class="container">
+        <div class="logo">
+            <i class="fas fa-archway logo-icon"></i>
+            <span>Chettinad Heritage</span>
+        </div>
+        
+        <div class="content">
+            <h1>
+                <span class="highlight">Digitalising Chettinad</span><br>
+                Architectural & Cultural Heritage
+            </h1>
+            <p class="subtitle">
+                Preserving the rich legacy of Chettinad through comprehensive documentation 
+                of historic buildings, cultural artifacts, and natural heritage in Tamil Nadu
+            </p>
+            <button class="btn" onclick="window.location.href='./form.html'">
+                <i class="fas fa-plus"></i>
+                Add Heritage Property
+            </button>
+        </div>
+        
+        <div class="footer">
+            School Of Architecture, CHRIST (Deemed to be University), Bangalore
+        </div>
+    </div>
+
+   
+</body>
+</html>
