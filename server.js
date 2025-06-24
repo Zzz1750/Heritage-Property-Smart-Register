@@ -2,7 +2,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const cors = require('cors');
-require('dotenv').config();
+
+// Set default environment variables if not provided
+if (!process.env.MONGODB_URI) {
+  console.warn('No MONGODB_URI environment variable set');
+  process.env.MONGODB_URI = 'mongodb://localhost:27017/mydatabase';
+}
 
 const app = express();
 
