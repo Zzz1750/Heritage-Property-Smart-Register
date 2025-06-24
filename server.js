@@ -22,9 +22,9 @@ app.use((req, res, next) => {
 });
 
 // MongoDB connection
-const MONGODB_URI = 'mongodb+srv://chettinadicssr:chettinad123@chettinad.gtf24h8.mongodb.net/chettinad?retryWrites=true&w=majority';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mydatabase';
 
-mongoose.connect(MONGODB_URI)
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
@@ -333,8 +333,10 @@ app.use(express.static(__dirname));
 
 // Start server
 const PORT = process.env.PORT || 3000;
+// Using MONGODB_URI from environment variables (already connected at the top)
+
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
   console.log('Access form at http://localhost:3000/index.html');
 });
 
