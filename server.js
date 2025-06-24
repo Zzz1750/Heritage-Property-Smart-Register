@@ -341,7 +341,7 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  console.log('Access form at http://localhost:3000/index.html');
+  console.log(`Access form at http://localhost:${PORT}/index.html`);
 });
 
 // Error handling middleware
