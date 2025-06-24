@@ -356,7 +356,9 @@
         <form id="heritageForm">
 
             <div class="form-section">
-                <h2 id="serial_number">SERIAL NO: -</h2><br>
+                <h2 id="serial_number_display">SERIAL NO: -</h2>
+                <input type="hidden" id="serial_number" name="serial_number">
+                <br>
                 <label for="village_city">Choose a Village/City:</label>
                 <select id="village_city" name="village_city">
                     <option value="" disabled selected>Select</option>
@@ -992,7 +994,8 @@
             const year = now.getFullYear();
             
             compactFormat = `${two_place}${hours}${minutes}${seconds}${day}${month}${year}`;
-            document.getElementById('serial_number').innerHTML = "SERIAL NO: " + compactFormat;
+            document.getElementById('serial_number_display').innerHTML = "SERIAL NO: " + compactFormat;
+            document.getElementById('serial_number').value = compactFormat;
         }
         
         // Image preview setup

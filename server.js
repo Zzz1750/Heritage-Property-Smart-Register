@@ -30,7 +30,10 @@ mongoose.connect(MONGODB_URI)
 
 // Define schema and model
 const heritageSchema = new mongoose.Schema({
-  serialNumber: String,
+  serialNumber: {
+    type: String,
+    required: true
+  },
   village_city: String,
   historic_name: String,
   other_name: String,
@@ -167,7 +170,7 @@ app.post('/api/submit-form', dynamicUpload, async (req, res) => {
 
     // Create a new heritage document
     const heritage = new Heritage({
-      serialNumber: req.body.serialNumber,
+      serialNumber: req.body.serial_number,
       village_city: Array.isArray(req.body.village_city) ? req.body.village_city[0] : req.body.village_city,
       historic_name: Array.isArray(req.body.historic_name) ? req.body.historic_name[0] : req.body.historic_name,
       other_name: Array.isArray(req.body.other_name) ? req.body.other_name[0] : req.body.other_name,
